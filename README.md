@@ -1,3 +1,13 @@
+## 🚀 Live Application
+
+You can access the deployed Streamlit app here:
+
+👉 **Live URL:**  
+[https://eminentrahul-wind-turbine-forecast.hf.space](https://eminentrahul-wind-turbine-forecast.hf.space)
+
+
+
+
 # 🌬️ How I Built a Wind Turbine Power Forecasting Model (A Beginner‑Friendly Data Science Story)
 
 If you’ve ever wondered how **raw weather data** turns into **accurate power forecasts**, this project is my attempt to show that journey — step by step, without skipping the thinking.
