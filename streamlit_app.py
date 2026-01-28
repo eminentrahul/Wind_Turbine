@@ -1,72 +1,67 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import xgboost as xgb
 import joblib
-from datetime import datetime
 
-# -----------------------------
-# App Config
-# -----------------------------
+# ---------------------------
+# Page config
+# ---------------------------
 st.set_page_config(
-    page_title="Wind Power Forecasting",
+    page_title="Wind Turbine Power Forecast",
+    page_icon="🌬️",
     layout="centered"
 )
 
-st.title("🌬️ Wind Power Generation Forecast")
-st.markdown("Predict renewable energy generation using ML")
+st.title("🌬️ Wind Turbine Power Forecasting")
+st.markdown("Predict wind turbine power output using weather conditions.")
 
-# -----------------------------
-# Load Model
-# -----------------------------
+# ---------------------------
+# Load model (cached)
+# ---------------------------
 @st.cache_resource
 def load_model():
-    model = joblib.load("xgboost_forecast.pkl")
-    features = joblib.load("model_features.pkl")
-    return model, features
+    model = xgb.XGBRegressor()
+    model.load_model("xgboost_forecast.json")
+    return model
 
-model, feature_cols = load_model()
+@st.cache_resource
+def load_features():
+    return joblib.load("model_features.pkl")
 
-# -----------------------------
+model = load_model()
+FEATURES = load_features()
+
+# ---------------------------
 # User Inputs
-# -----------------------------
-st.subheader("Input Parameters")
+# ---------------------------
+st.subheader("🔧 Input Parameters")
 
-ws_100m = st.slider("Wind Speed at 100m (m/s)", 0.0, 25.0, 8.0)
-wd_100m = st.slider("Wind Direction at 100m (degrees)", 0, 360, 180)
-temp = st.slider("Temperature at 2m (°C)", -10.0, 45.0, 25.0)
+wind_speed = st.slider("Wind Speed (m/s)", 0.0, 25.0, 8.0)
+wind_direction = st.slider("Wind Direction (°)", 0.0, 360.0, 180.0)
+temperature = st.slider("Temperature (°C)", -10.0, 50.0, 25.0)
+humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
 
-selected_time = st.time_input("Select Time", datetime.now().time())
+# ---------------------------
+# Feature engineering (basic demo)
+# ---------------------------
+input_data = pd.DataFrame([{
+    "WindSpeed": wind_speed,
+    "WindDirection": wind_direction,
+    "Temperature": temperature,
+    "Humidity": humidity
+}])
 
-# -----------------------------
-# Feature Engineering (Inference)
-# -----------------------------
-hour = selected_time.hour
-month = datetime.now().month
-weekday = datetime.now().weekday()
+# Ensure feature order matches training
+for col in FEATURES:
+    if col not in input_data:
+        input_data[col] = 0
 
-input_data = {
-    "WS_100m": ws_100m,
-    "WD_100m": wd_100m,
-    "Temp_2m": temp,
-    "hour": hour,
-    "month": month,
-    "weekday": weekday,
-    "wind_energy": ws_100m ** 3,
-    "wind_direction_effect": ws_100m * np.sin(np.deg2rad(wd_100m)),
-    "sin_hour": np.sin(2 * np.pi * hour / 24),
-    "cos_hour": np.cos(2 * np.pi * hour / 24),
-}
+input_data = input_data[FEATURES]
 
-input_df = pd.DataFrame([input_data])
-
-# Ensure column order matches training
-input_df = input_df.reindex(columns=feature_cols, fill_value=0)
-
-# -----------------------------
+# ---------------------------
 # Prediction
-# -----------------------------
-if st.button("Predict Power ⚡ Output"):
-    prediction = model.predict(input_df)[0]
-
-    st.success(f"Predicted Power Output: **{prediction:.3f} MW**")
-
+# ---------------------------
+if st.button("⚡ Predict Power Output"):
+    prediction = model.predict(input_data)[0]
+    st.success(f"Estimated Power Output: **{prediction:.2f} kW**")
