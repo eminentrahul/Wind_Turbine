@@ -22,12 +22,12 @@ st.markdown("Predict wind turbine power output using weather conditions.")
 @st.cache_resource
 def load_model():
     model = xgb.XGBRegressor()
-    model.load_model("xgboost_forecast.json")
+    model.load_model("../models/xgboost_forecast.json")
     return model
 
 @st.cache_resource
 def load_features():
-    return joblib.load("model_features.pkl")
+    return joblib.load("../models/model_features.pkl")
 
 model = load_model()
 FEATURES = load_features()
