@@ -6,6 +6,9 @@ You can access the deployed Streamlit app here:
 [https://eminentrahul-wind-turbine-forecast.hf.space](https://eminentrahul-wind-turbine-forecast.hf.space)
 
 
+[https://aerowatt.streamlit.app](https://aerowatt.streamlit.app)
+
+
 
 
 # 🌬️ How I Built a Wind Turbine Power Forecasting Model (A Beginner‑Friendly Data Science Story)
